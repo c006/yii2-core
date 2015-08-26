@@ -24,6 +24,18 @@ class CoreHelper
     }
 
     /**
+     * @param int $time
+     *
+     * @return bool|string
+     */
+    static public function mysqlTimestamp($time = 0)
+    {
+        $time = ($time) ? $time : time();
+
+        return date('Y-m-d H:i:s', $time);
+    }
+
+    /**
      * @param $min
      * @param $max
      * @param bool|FALSE $leading_zero
@@ -43,6 +55,55 @@ class CoreHelper
     static public function formatUrl($url)
     {
         return '';
+    }
+
+
+    static public function createToken($length = 32)
+    {
+        $array = array('random_number', 'random_uppercase', 'random_lowercase');
+        $token = '';
+
+        while ($length) {
+            for ($ii = 0; $ii < 5; $ii++) {
+                $call = rand(0, 2);
+                $token .= self::$array[ $call ]();
+                $length--;
+            }
+            $token .= '-';
+        }
+
+        return rtrim($token, '-');
+    }
+
+    static public function random_number($n = 1)
+    {
+        $out = '';
+        for ($i = 0; $i < $n; $i++) {
+            $out .= rand(0, 9);
+        }
+
+        return $out;
+    }
+
+    static public function random_uppercase($n = 1)
+    {
+        $out = '';
+        for ($i = 0; $i < $n; $i++) {
+            $out .= chr(rand(65, 90));
+        }
+
+        return $out;
+    }
+
+
+    static public function random_lowercase($n = 1)
+    {
+        $out = '';
+        for ($i = 0; $i < $n; $i++) {
+            $out .= chr(rand(97, 122));
+        }
+
+        return $out;
     }
 
 }
