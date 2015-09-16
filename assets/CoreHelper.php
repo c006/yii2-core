@@ -4,6 +4,10 @@ namespace c006\core\assets;
 
 use Yii;
 
+/**
+ * Class CoreHelper
+ * @package c006\core\assets
+ */
 class CoreHelper
 {
 
@@ -52,12 +56,22 @@ class CoreHelper
         return $array;
     }
 
+    /**
+     * @param $url
+     *
+     * @return string
+     */
     static public function formatUrl($url)
     {
         return '';
     }
 
 
+    /**
+     * @param int $length
+     *
+     * @return string
+     */
     static public function createToken($length = 32)
     {
         $array = array('random_number', 'random_uppercase', 'random_lowercase');
@@ -75,6 +89,11 @@ class CoreHelper
         return rtrim($token, '-');
     }
 
+    /**
+     * @param int $n
+     *
+     * @return string
+     */
     static public function random_number($n = 1)
     {
         $out = '';
@@ -85,6 +104,11 @@ class CoreHelper
         return $out;
     }
 
+    /**
+     * @param int $n
+     *
+     * @return string
+     */
     static public function random_uppercase($n = 1)
     {
         $out = '';
@@ -96,6 +120,11 @@ class CoreHelper
     }
 
 
+    /**
+     * @param int $n
+     *
+     * @return string
+     */
     static public function random_lowercase($n = 1)
     {
         $out = '';
@@ -104,6 +133,31 @@ class CoreHelper
         }
 
         return $out;
+    }
+
+    /**
+     * @param $date
+     * @param string $format
+     *
+     * @return int
+     */
+    static public function dateToTime($date, $format = 'YYYY-MM-DD')
+    {
+        $month = $day = $year = 0;
+        if ($format == 'YYYY-MM-DD') list($year, $month, $day) = explode('-', $date);
+        if ($format == 'YYYY/MM/DD') list($year, $month, $day) = explode('/', $date);
+        if ($format == 'YYYY.MM.DD') list($year, $month, $day) = explode('.', $date);
+
+        if ($format == 'DD-MM-YYYY') list($day, $month, $year) = explode('-', $date);
+        if ($format == 'DD/MM/YYYY') list($day, $month, $year) = explode('/', $date);
+        if ($format == 'DD.MM.YYYY') list($day, $month, $year) = explode('.', $date);
+
+        if ($format == 'MM-DD-YYYY') list($month, $day, $year) = explode('-', $date);
+        if ($format == 'MM/DD/YYYY') list($month, $day, $year) = explode('/', $date);
+        if ($format == 'MM.DD.YYYY') list($month, $day, $year) = explode('.', $date);
+
+        return mktime(0, 0, 0, $month, $day, $year);
+
     }
 
 }
