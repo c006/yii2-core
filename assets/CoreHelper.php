@@ -69,21 +69,22 @@ class CoreHelper
 
     /**
      * @param int $length
+     * @param bool|TRUE $use_dash
+     * @param string $leading_symbol
      *
      * @return string
      */
-    static public function createToken($length = 32)
+    static public function createToken($length = 32, $use_dash = TRUE, $leading_symbol = '')
     {
         $array = array('random_number', 'random_uppercase', 'random_lowercase');
-        $token = '';
+        $token = $leading_symbol;
 
-        while ($length) {
+        while (strlen($token) < $length + 1) {
             for ($ii = 0; $ii < 5; $ii++) {
-                $call = rand(0, 2);
+                $call = (int)rand(0, 2);
                 $token .= self::$array[ $call ]();
-                $length--;
             }
-            $token .= '-';
+            $token .= ($use_dash) ? '-' : '';
         }
 
         return rtrim($token, '-');
@@ -136,6 +137,139 @@ class CoreHelper
     }
 
     /**
+     * @param $path
+     * @param $base_path
+     *
+     * @return array
+     */
+    static public function recursiveDirectory($path, $base_path)
+    {
+
+        $array = array();
+        if (!is_dir($path))
+            die("No Directory: " . $path);
+        $items = scandir($path);
+        foreach ($items as $item) {
+            if ($item != "." && $item != "..") {
+                if (is_file($path . "/" . $item)) {
+                    $array[]['item'] = array(
+                        'is_dir'    => FALSE,
+                        'path'      => $path,
+                        'relative'  => str_replace($base_path, '', $path),
+                        'file'      => $item,
+                        'extension' => self::fileExtension($item),
+                    );
+                }
+            }
+        }
+        foreach ($items as $item) {
+            if ($item != "." && $item != "..") {
+                if (is_dir($path . "/" . $item)) {
+                    $array[]['item'] = array(
+                        'is_dir'      => TRUE,
+                        'path'        => $path,
+                        'relative'    => str_replace($base_path, '', $path),
+                        'folder'      => $item,
+                        'depth'       => self::folderCountInPath(str_replace($base_path, '', $path . "/" . $item)),
+                        'sub_folders' => self::recursiveDirectory($path . "/" . $item, $base_path),
+                    );
+                }
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * @param $path
+     *
+     * @return int
+     */
+    static public function folderCountInPath($path)
+    {
+
+        $path = self::cleanSlashInPath($path);
+        $path = self::removeTrailingBackSlash($path);
+
+        return sizeof(explode('/', $path));
+    }
+
+    /**
+     * @param $file_name
+     *
+     * @return mixed
+     */
+    static public function  fileExtension($file_name)
+    {
+
+        $f = explode('.', $file_name);
+
+        return strtolower($f[ sizeof($f) - 1 ]);
+    }
+
+    /**
+     * @param $path
+     * @param bool|FALSE $is_forward
+     *
+     * @return mixed
+     */
+    static public function cleanSlashInPath($path, $is_forward = FALSE)
+    {
+
+        if ($is_forward) {
+            return str_replace('/', '\\', $path);
+        }
+
+        return str_replace('\\', '/', $path);
+    }
+
+
+    /**
+     * @param $path
+     *
+     * @return string
+     */
+    static public function removeTrailingBackSlash($path)
+    {
+
+        if (substr($path, strlen($path) - 1, 1) == "/") {
+            return substr($path, 0, strlen($path) - 1);
+        }
+
+        return $path;
+    }
+
+    /**
+     * @return mixed
+     */
+    static public function getBasePath()
+    {
+        $path = self::cleanSlashInPath(Yii::$app->basePath);
+        $path = str_replace('protected', '', $path);
+
+        return preg_replace('/\/$/', '', $path);
+    }
+
+    /**
+     * @param $path
+     */
+    static public function buildPath($path)
+    {
+        $dirs = '';
+        $base_path = self::getBasePath();
+        $path = self::cleanSlashInPath($path);
+        $path = str_replace($base_path, '', $path);
+        foreach (explode('/', $path) as $dir) {
+            if (!$dir)
+                continue;
+            $dirs .= '/' . $dir;
+            if (!is_dir($base_path . $dirs))
+                mkdir($base_path . $dirs);
+        }
+
+    }
+
+    /**
      * @param $date
      * @param string $format
      *
@@ -158,6 +292,16 @@ class CoreHelper
 
         return mktime(0, 0, 0, $month, $day, $year);
 
+    }
+
+    /**
+     * @param $string
+     *
+     * @return bool
+     */
+    static public function hasUppercase($string)
+    {
+        return (bool)preg_match('/[A-Z]/', $string);
     }
 
 }
