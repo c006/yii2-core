@@ -40,15 +40,15 @@ class CoreHelper
     }
 
     /**
-     * @param $min
-     * @param $max
+     * @param            $min
+     * @param            $max
      * @param bool|FALSE $leading_zero
      *
      * @return array
      */
     public static function minMaxRange($min, $max, $leading_zero = FALSE)
     {
-        $array = array();
+        $array = [];
         for ($i = $min; $i <= $max; $i++) {
             $array[ $i ] = ($leading_zero && $i < 10) ? "0" . $i : $i;
         }
@@ -68,15 +68,15 @@ class CoreHelper
 
 
     /**
-     * @param int $length
+     * @param int       $length
      * @param bool|TRUE $use_dash
-     * @param string $leading_symbol
+     * @param string    $leading_symbol
      *
      * @return string
      */
     static public function createToken($length = 32, $use_dash = TRUE, $leading_symbol = '')
     {
-        $array = array('random_number', 'random_uppercase', 'random_lowercase');
+        $array = ['random_number', 'random_uppercase', 'random_lowercase'];
         $token = $leading_symbol;
 
         while (strlen($token) < $length + 1) {
@@ -145,39 +145,53 @@ class CoreHelper
     static public function recursiveDirectory($path, $base_path)
     {
 
-        $array = array();
-        if (!is_dir($path))
+        $array = [];
+        if (!is_dir($path)) {
             die("No Directory: " . $path);
+        }
         $items = scandir($path);
         foreach ($items as $item) {
             if ($item != "." && $item != "..") {
                 if (is_file($path . "/" . $item)) {
-                    $array[]['item'] = array(
+                    $array[]['item'] = [
                         'is_dir'    => FALSE,
                         'path'      => $path,
                         'relative'  => str_replace($base_path, '', $path),
                         'file'      => $item,
                         'extension' => self::fileExtension($item),
-                    );
+                    ];
                 }
             }
         }
         foreach ($items as $item) {
             if ($item != "." && $item != "..") {
                 if (is_dir($path . "/" . $item)) {
-                    $array[]['item'] = array(
+                    $array[]['item'] = [
                         'is_dir'      => TRUE,
                         'path'        => $path,
                         'relative'    => str_replace($base_path, '', $path),
                         'folder'      => $item,
                         'depth'       => self::folderCountInPath(str_replace($base_path, '', $path . "/" . $item)),
                         'sub_folders' => self::recursiveDirectory($path . "/" . $item, $base_path),
-                    );
+                    ];
                 }
             }
         }
 
         return $array;
+    }
+
+    /**
+     * @param $file_name
+     *
+     * @return mixed
+     */
+    static public function fileExtension($file_name)
+    {
+
+        $f = explode('.', $file_name);
+
+        return strtolower($f[ sizeof($f) - 1 ]);
     }
 
     /**
@@ -195,20 +209,7 @@ class CoreHelper
     }
 
     /**
-     * @param $file_name
-     *
-     * @return mixed
-     */
-    static public function  fileExtension($file_name)
-    {
-
-        $f = explode('.', $file_name);
-
-        return strtolower($f[ sizeof($f) - 1 ]);
-    }
-
-    /**
-     * @param $path
+     * @param            $path
      * @param bool|FALSE $is_forward
      *
      * @return mixed
@@ -240,6 +241,27 @@ class CoreHelper
     }
 
     /**
+     * @param $path
+     */
+    static public function buildPath($path)
+    {
+        $dirs      = '';
+        $base_path = self::getBasePath();
+        $path      = self::cleanSlashInPath($path);
+        $path      = str_replace($base_path, '', $path);
+        foreach (explode('/', $path) as $dir) {
+            if (!$dir) {
+                continue;
+            }
+            $dirs .= '/' . $dir;
+            if (!is_dir($base_path . $dirs)) {
+                mkdir($base_path . $dirs);
+            }
+        }
+
+    }
+
+    /**
      * @return mixed
      */
     static public function getBasePath()
@@ -251,26 +273,7 @@ class CoreHelper
     }
 
     /**
-     * @param $path
-     */
-    static public function buildPath($path)
-    {
-        $dirs = '';
-        $base_path = self::getBasePath();
-        $path = self::cleanSlashInPath($path);
-        $path = str_replace($base_path, '', $path);
-        foreach (explode('/', $path) as $dir) {
-            if (!$dir)
-                continue;
-            $dirs .= '/' . $dir;
-            if (!is_dir($base_path . $dirs))
-                mkdir($base_path . $dirs);
-        }
-
-    }
-
-    /**
-     * @param $date
+     * @param        $date
      * @param string $format
      *
      * @return int
@@ -278,17 +281,35 @@ class CoreHelper
     static public function dateToTime($date, $format = 'YYYY-MM-DD')
     {
         $month = $day = $year = 0;
-        if ($format == 'YYYY-MM-DD') list($year, $month, $day) = explode('-', $date);
-        if ($format == 'YYYY/MM/DD') list($year, $month, $day) = explode('/', $date);
-        if ($format == 'YYYY.MM.DD') list($year, $month, $day) = explode('.', $date);
+        if ($format == 'YYYY-MM-DD') {
+            list($year, $month, $day) = explode('-', $date);
+        }
+        if ($format == 'YYYY/MM/DD') {
+            list($year, $month, $day) = explode('/', $date);
+        }
+        if ($format == 'YYYY.MM.DD') {
+            list($year, $month, $day) = explode('.', $date);
+        }
 
-        if ($format == 'DD-MM-YYYY') list($day, $month, $year) = explode('-', $date);
-        if ($format == 'DD/MM/YYYY') list($day, $month, $year) = explode('/', $date);
-        if ($format == 'DD.MM.YYYY') list($day, $month, $year) = explode('.', $date);
+        if ($format == 'DD-MM-YYYY') {
+            list($day, $month, $year) = explode('-', $date);
+        }
+        if ($format == 'DD/MM/YYYY') {
+            list($day, $month, $year) = explode('/', $date);
+        }
+        if ($format == 'DD.MM.YYYY') {
+            list($day, $month, $year) = explode('.', $date);
+        }
 
-        if ($format == 'MM-DD-YYYY') list($month, $day, $year) = explode('-', $date);
-        if ($format == 'MM/DD/YYYY') list($month, $day, $year) = explode('/', $date);
-        if ($format == 'MM.DD.YYYY') list($month, $day, $year) = explode('.', $date);
+        if ($format == 'MM-DD-YYYY') {
+            list($month, $day, $year) = explode('-', $date);
+        }
+        if ($format == 'MM/DD/YYYY') {
+            list($month, $day, $year) = explode('/', $date);
+        }
+        if ($format == 'MM.DD.YYYY') {
+            list($month, $day, $year) = explode('.', $date);
+        }
 
         return mktime(0, 0, 0, $month, $day, $year);
 
@@ -302,6 +323,48 @@ class CoreHelper
     static public function hasUppercase($string)
     {
         return (bool)preg_match('/[A-Z]/', $string);
+    }
+
+    /**
+     * @param     $x_over
+     * @param     $y
+     * @param int $decimal_places
+     * @return string
+     */
+    static public function getPercentage($x_over, $y, $decimal_places = 0)
+    {
+        return number_format( 100 - ($x_over / $y) * 100, $decimal_places);
+    }
+
+
+    /**
+     * @param $array_in
+     *
+     * @return array
+     */
+    public static function objectToArray($array_in)
+    {
+        $array = array();
+        if ( is_object($array_in) ) {
+            return self::objectToArray(get_object_vars($array_in));
+        }
+        else {
+            if ( is_array($array_in) ) {
+                foreach ($array_in as $key => $value) {
+                    if ( is_object($value) ) {
+                        $array[$key] = self::objectToArray($value);
+                    }
+                    elseif ( is_array($value) ) {
+                        $array[$key] = self::objectToArray($value);
+                    }
+                    else {
+                        $array[$key] = $value;
+                    }
+                }
+            }
+        }
+
+        return $array;
     }
 
 }
