@@ -367,4 +367,32 @@ class CoreHelper
         return $array;
     }
 
+
+    /**
+     * @param $name
+     *
+     * @return mixed
+     */
+    static public function NameToClass($name)
+    {
+        $name = strtolower(trim($name));
+        $name = preg_replace('/[\s\t]+/', '-', $name);
+
+        return preg_replace('/-+/', '-', $name);
+    }
+
+
+    /**
+     * @return array
+     */
+    static public function monthsArray() {
+        $months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        $array = [];
+        foreach ($months as $k => $v) {
+            $array[$k + 1] = ($k + 1) .' - '. $v;
+        }
+
+        return $array;
+    }
+
 }
