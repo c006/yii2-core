@@ -395,4 +395,56 @@ class CoreHelper
         return $array;
     }
 
+
+    /**
+     * @param $model_class
+     * @param $array
+     *
+     * @return bool|\yii\db\ActiveRecord
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    static public function saveModelForm($model_class, $array)
+    {
+
+        /** @var  $model \yii\db\ActiveRecord */
+        $model = new $model_class();
+
+        if (isset($array['id']) && $array['id']) {
+            $model->setIsNewRecord(FALSE);
+        }
+
+        foreach ($array as $k => $v) {
+            $model[ $k ] = $v;
+        }
+
+        if ($model->isNewRecord && $model->validate() && $model->save()) {
+            return $model;
+        }
+        if (!$model->isNewRecord) {
+            $sql = "UPDATE " . $model->getTableSchema()->fullName . " ";
+            $sql .= "SET ";
+            foreach ($array as $k => $v) {
+                if ($k == "id") {
+                    continue;
+                }
+                $sql .= "`" . strtolower(trim($k)) . "` = '" . addslashes(trim($v)) . "',";
+            }
+            $sql = rtrim($sql, ',');
+            $sql .= " WHERE `id` = " . $array['id'];
+            Yii::$app->db->createCommand($sql)->execute();
+
+            return $model;
+        }
+
+        echo PHP_EOL . $model_class . "<BR>" . PHP_EOL;
+        print_r($model->getErrors());
+        exit;
+
+        Alerts::setMessage('Model: ' . $model_class . '<br>Error: ' . print_r($model->getErrors(), TRUE));
+        Alerts::setAlertType(Alerts::ALERT_DANGER);
+
+        return FALSE;
+    }
+
 }
