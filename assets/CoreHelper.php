@@ -16,7 +16,7 @@ class CoreHelper
      */
     static public function checkLogin()
     {
-        return TRUE;
+        return (self::isGuest()) ? TRUE : FALSE;
     }
 
     /**
@@ -50,7 +50,7 @@ class CoreHelper
     {
         $array = [];
         for ($i = $min; $i <= $max; $i++) {
-            $array[ $i ] = ($leading_zero && $i < 10) ? "0" . $i : $i;
+            $array[$i] = ($leading_zero && $i < 10) ? "0" . $i : $i;
         }
 
         return $array;
@@ -63,14 +63,14 @@ class CoreHelper
      */
     static public function formatUrl($url)
     {
-        return '';
+        return preg_replace('/[^a-z|0-9|\-|\.|\+]/', '-', strtolower(trim($url)));
     }
 
 
     /**
-     * @param int       $length
+     * @param int $length
      * @param bool|TRUE $use_dash
-     * @param string    $leading_symbol
+     * @param string $leading_symbol
      *
      * @return string
      */
@@ -82,7 +82,7 @@ class CoreHelper
         while (strlen($token) < $length + 1) {
             for ($ii = 0; $ii < 5; $ii++) {
                 $call = (int)rand(0, 2);
-                $token .= self::$array[ $call ]();
+                $token .= self::$array[$call]();
             }
             $token .= ($use_dash) ? '-' : '';
         }
@@ -191,7 +191,7 @@ class CoreHelper
 
         $f = explode('.', $file_name);
 
-        return strtolower($f[ sizeof($f) - 1 ]);
+        return strtolower($f[sizeof($f) - 1]);
     }
 
     /**
@@ -245,10 +245,10 @@ class CoreHelper
      */
     static public function buildPath($path)
     {
-        $dirs      = '';
+        $dirs = '';
         $base_path = self::getBasePath();
-        $path      = self::cleanSlashInPath($path);
-        $path      = str_replace($base_path, '', $path);
+        $path = self::cleanSlashInPath($path);
+        $path = str_replace($base_path, '', $path);
         foreach (explode('/', $path) as $dir) {
             if (!$dir) {
                 continue;
@@ -333,7 +333,7 @@ class CoreHelper
      */
     static public function getPercentage($x_over, $y, $decimal_places = 0)
     {
-        return number_format( 100 - ($x_over / $y) * 100, $decimal_places);
+        return number_format(100 - ($x_over / $y) * 100, $decimal_places);
     }
 
 
@@ -344,20 +344,17 @@ class CoreHelper
      */
     public static function objectToArray($array_in)
     {
-        $array = array();
-        if ( is_object($array_in) ) {
+        $array = [];
+        if (is_object($array_in)) {
             return self::objectToArray(get_object_vars($array_in));
-        }
-        else {
-            if ( is_array($array_in) ) {
+        } else {
+            if (is_array($array_in)) {
                 foreach ($array_in as $key => $value) {
-                    if ( is_object($value) ) {
+                    if (is_object($value)) {
                         $array[$key] = self::objectToArray($value);
-                    }
-                    elseif ( is_array($value) ) {
+                    } elseif (is_array($value)) {
                         $array[$key] = self::objectToArray($value);
-                    }
-                    else {
+                    } else {
                         $array[$key] = $value;
                     }
                 }
@@ -371,25 +368,28 @@ class CoreHelper
     /**
      * @param $name
      *
-     * @return mixed
+     * @return string
      */
     static public function NameToClass($name)
     {
         $name = strtolower(trim($name));
-        $name = preg_replace('/[\s\t]+/', '-', $name);
+        $name = preg_replace('/[\s\t]+/', ' ', $name);
+        $name = preg_replace('/_/', ' ', $name);
+        $name = preg_replace('/\s+/', ' ', $name);
 
-        return preg_replace('/-+/', '-', $name);
+        return str_replace(' ', '', ucwords($name));
     }
 
 
     /**
      * @return array
      */
-    static public function monthsArray() {
-        $months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    static public function monthsArray()
+    {
+        $months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
         $array = [];
         foreach ($months as $k => $v) {
-            $array[$k + 1] = ($k + 1) .' - '. $v;
+            $array[$k + 1] = ($k + 1) . ' - ' . $v;
         }
 
         return $array;
@@ -415,7 +415,7 @@ class CoreHelper
         }
 
         foreach ($array as $k => $v) {
-            $model[ $k ] = $v;
+            $model[$k] = $v;
         }
 
         if ($model->isNewRecord && $model->validate() && $model->save()) {
