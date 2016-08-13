@@ -63,7 +63,8 @@ class CoreHelper
      */
     static public function formatUrl($url)
     {
-        return preg_replace('/[^a-z|0-9|\-|\.|\+]/', '-', strtolower(trim($url)));
+        $url = preg_replace('/[^a-z|0-9|\-|\.|\+]/', '-', strtolower(trim($url)));
+        return preg_replace('/-+/','-', $url);
     }
 
 
@@ -280,6 +281,7 @@ class CoreHelper
      */
     static public function dateToTime($date, $format = 'YYYY-MM-DD')
     {
+        $date = trim($date);
         $month = $day = $year = 0;
         if ($format == 'YYYY-MM-DD') {
             list($year, $month, $day) = explode('-', $date);
@@ -290,7 +292,6 @@ class CoreHelper
         if ($format == 'YYYY.MM.DD') {
             list($year, $month, $day) = explode('.', $date);
         }
-
         if ($format == 'DD-MM-YYYY') {
             list($day, $month, $year) = explode('-', $date);
         }
@@ -300,7 +301,6 @@ class CoreHelper
         if ($format == 'DD.MM.YYYY') {
             list($day, $month, $year) = explode('.', $date);
         }
-
         if ($format == 'MM-DD-YYYY') {
             list($month, $day, $year) = explode('-', $date);
         }
@@ -311,7 +311,7 @@ class CoreHelper
             list($month, $day, $year) = explode('.', $date);
         }
 
-        return mktime(0, 0, 0, $month, $day, $year);
+        return (int) mktime(0, 0, 0, $month, $day, $year);
 
     }
 
@@ -445,6 +445,58 @@ class CoreHelper
         Alerts::setAlertType(Alerts::ALERT_DANGER);
 
         return FALSE;
+    }
+
+    /**
+     * @param $css
+     * @return string
+     */
+    static public function cleanCss($css)
+    {
+        $out = '';
+        $max = 0;
+        $min = 20;
+        $array = [];
+        $index = -1;
+        foreach (explode(PHP_EOL, $css) as $line) {
+            $css = $line;
+
+
+            if (stripos($css, ':') == FALSE) {
+                $array[] = $line;
+            } else {
+
+                list($a, $b) = explode(':', $css);
+                $a = trim($a);
+                $b = trim($b);
+                if ($max < strlen($a)) {
+                    $max = strlen($a);
+                }
+                if ($min > strlen($b)) {
+                    $min = strlen($b);
+                }
+                $array[] = [$a, $b];
+            }
+        }
+
+        foreach ($array as $item) {
+            if (is_array($item) == FALSE) {
+                $out .= $item;
+                continue;
+            }
+            $len = $max - strlen($item[0]);
+            $ratio = ceil($max / $min / 2);
+            $ratio = ($ratio < 3) ? 3 : $ratio;
+            $ratio = ($ratio > 3) ? 4 : $ratio;
+            if (strlen($item[0]) == $max) {
+                $out .= $item[0] . "\t: " . trim($item[1]) . PHP_EOL;
+            } else {
+                $out .= $item[0] . str_repeat("\t", ceil(($len + 1) / $ratio)) . ': ' . trim($item[1]) . PHP_EOL;
+            }
+
+        }
+
+        return $out;
     }
 
 }
