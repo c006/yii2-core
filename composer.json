@@ -1,0 +1,24 @@
+{
+  "name": "c006/yii2-core",
+  "description": "",
+  "type": "yii2-extension",
+  "keywords": [
+    "yii2",
+    "extension",
+    "widgets",
+    "crud",
+    "gii"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jon Chambers",
+      "email": "jchambers.dev@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "c006\\core\\": ""
+    }
+  }
+}
