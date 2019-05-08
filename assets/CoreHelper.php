@@ -83,7 +83,7 @@ class CoreHelper
         while (strlen($token) < $length + 1) {
             for ($ii = 0; $ii < 5; $ii++) {
                 $call = (int)rand(0, 2);
-                $token .= self::$array[ $call ]();
+                $token .= self::{$array[ $call ]}();
             }
             $token .= ($use_dash) ? '-' : '';
         }
