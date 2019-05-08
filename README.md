@@ -14,19 +14,25 @@ Installation
 
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
 
-Either run
+Either add  
 
 ```
 php composer.phar require --prefer-source "c006/yii2-core" "*"
 ```
 
-or add
+or add to the require section of your `composer.json` file.
 
 ```
 "c006/yii2-core": "*"
 ```
 
-to the require section of your `composer.json` file.
+then
+
+```
+sudo php composer udpate
+```
+
+
 
 
 
